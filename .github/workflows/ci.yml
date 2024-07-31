@@ -1,0 +1,27 @@
+name: Continuous Integration
+run-name:
+  "Continuous Integration jobs for ${{ github.event_name }} on ${{ github.base_ref }} by ${{ github.actor }}"
+
+###############################################################################
+## These actions run when there is a change in a pull request
+###############################################################################
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build_and_test:
+    name: Rust project - latest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update && rustup default
+      - run: cargo build --verbose
+      - run: cargo test --verbose

@@ -1,0 +1,37 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        // ----------------------------------------------------------------------------------------
+        // #region: Build tasks
+        {
+            "label": "Build",
+            "type": "cargo",
+            "command": "build",
+            "args": [ "--target", "x86_64-pc-windows-gnu" ],
+            "problemMatcher": [ "$rustc" ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        // #endregion Build tasks
+        // ----------------------------------------------------------------------------------------
+
+        // ----------------------------------------------------------------------------------------
+        // #region: Test tasks
+        {
+            "label": "Test",
+            "type": "cargo",
+            "command": "test",
+            "args": [ "--target", "x86_64-pc-windows-gnu" ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        }
+        // #endregion Test tasks
+        // ----------------------------------------------------------------------------------------
+    ]
+}
