@@ -372,6 +372,7 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_yml",
+ "thiserror",
  "tree-ds",
  "uuid",
 ]

@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 // region: imports
 //- stdlib
 use std::{default::Default, fs, str::FromStr};
@@ -7,6 +8,8 @@ use glob::{glob_with, MatchOptions, Paths, PatternError};
 use regex::Regex;
 //- local
 use crate::id::Id;
+use crate::error::MdDbError::VaultParseError;
+use crate::parser;
 // endregion imports
 
 use std::path::PathBuf;
@@ -17,6 +20,9 @@ pub struct Vault {
     pub path: PathBuf,
     pub pattern: String,
     pub options: MatchOptions,
+    // index of ids to files for fast lookups of id
+    // also used to lookup if an id is already in use
+    index: BTreeMap<String , PathBuf>,
 }
 
 impl Default for Vault {
@@ -26,29 +32,39 @@ impl Default for Vault {
             path: PathBuf::new(),
             pattern: String::from("*.md"),
             options: MatchOptions::new(),
+            index: BTreeMap::new()
         }
     }
 }
 
 impl Vault {
-    pub fn new(p: &str, t: Option<&str>, n: Option<&str>, o: Option<MatchOptions>) -> Self {
-        let pattern = t.unwrap_or("*.md");
-        let name = n.unwrap_or("");
-        let options = o.unwrap_or(MatchOptions::new());
-        let path = PathBuf::from_str(p).expect("Could not create vault from path");
+    pub fn new(
+        path: &str,
+        pattern: Option<&str>,
+        name: Option<&str>,
+        options: Option<MatchOptions>,
+    ) -> Self {
+        let _pattern = pattern.unwrap_or("*.md");
+        let _name = name.unwrap_or("");
+        let _options = options.unwrap_or(MatchOptions::new());
+        // TODO: we should expand the path first
+        let _path = PathBuf::from_str(path).expect("Could not create vault from path");
 
         Self {
-                name: name.to_string(),
-                path: path,
-                pattern: pattern.to_string(),
-                options: options
+            name: _name.to_string(),
+            path: _path,
+            pattern: _pattern.to_string(),
+            options: _options,
+            index: BTreeMap::new()
         }
     }
 
+    pub fn parse(&self) -> Result<(), VaultParseError> {
+        let parser = parser::Parser::new();
+    }
+
     pub fn get_files(&self) -> Result<Paths, PatternError> {
-        let path = self.path.join(self.pattern.clone())
-        .display()
-        .to_string();
+        let path = self.path.join(self.pattern.clone()).display().to_string();
         glob_with(path.as_str(), self.options)
     }
 
@@ -66,14 +82,17 @@ impl Vault {
                 let matches = re.captures(&content).unwrap();
                 let id = matches.get(1).map_or("", |m| m.as_str());
 
-                if id.len() > 0 { &id.to_string() } else { Id::default().to_string() }
-            },
+                if id.len() > 0 {
+                    &id.to_string()
+                } else {
+                    Id::default().to_string()
+                }
+            }
             Ok(false) => Id::default().to_string(),
-            Err(e) => Id::default().to_string()
+            Err(e) => Id::default().to_string(),
         };
         id.clone()
     }
-
 }
 // region: Tests
 

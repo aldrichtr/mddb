@@ -29,6 +29,7 @@ tree-ds = "0.1"
 nanoid = "0.4.0"
 uuid = { version = "1.10.0", features = ["v4", "fast-rng"] }
 regex = "1.10.5"
+thiserror = "1.0.63"
 
 [dev-dependencies]
 nextest = "0.0.0"

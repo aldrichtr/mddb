@@ -182,7 +182,6 @@ impl Parser {
                 }
             }
         });
-        Task::from(file_data)
     }
 }
 
