@@ -1,8 +1,17 @@
 
 use thiserror::Error;
 
-#[derive(Debug, Error)]
-pub enum MdDbError {
-    #[error("Error parsing file {file}: {msg}")]
-    VaultParseError(file: &str, msg: &str),
+#[derive(Error, Debug)]
+pub enum DataStoreError {
+
+    #[error("Error parsing file {fname:?}: {msg:?}")]
+    VaultParseError {
+        fname: String,
+        msg: String
+    },
+
+    #[error("File '{fname:?}' already exists")]
+    FileExistsError {
+        fname: String
+    },
 }

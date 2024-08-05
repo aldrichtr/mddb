@@ -24,6 +24,7 @@ In addition to these, I have some basic colors set for the "heat" of the label. 
 
 The areas have two types of blue: `bfd4f4` is a light blue and these represent "generic" areas, ones that should reasonably apply in every project.. such as `area.build`, etc.; and `2564b9` which is a project specific
 "component" area.  So:
+
 ```powershell
 `Set-IssueLabel` -area 'componentA' -description 'Related to the componentA component'
 ```

@@ -1,26 +1,29 @@
-/*!
- *
- */
+//  #![deny(missing_docs)]
 
-use std::path::PathBuf;
-
-use vault::Vault;
+//! > **Datastore provider using a collection of Markdown files as it's backend**
+//!
 
 mod vault;
 mod parser;
 mod id;
 mod error;
 
-struct VaultData;
+pub use crate::{
+    vault::Vault,
+    id::Id
+};
 
 
 mod test {
-    use super::*;
     #[cfg(test)]
+    use super::vault::Vault;
 
     #[test]
-    fn connect_to_vault() {
-        let v = Vault::new("~/dendron/vaults/journal/notes", Some("*.md"), Some("journal"), None);
-        v.parse();
+    fn can_connect_to_vault() {
+        let v = Vault::connect(
+            "~/dendron/vaults/journal/notes",
+            Some("*.md"),
+            Some("journal"), None);
+        assert_eq!("~/dendron/vaults/journal/notes", v.base.display().to_string().as_str());
     }
 }

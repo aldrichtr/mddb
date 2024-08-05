@@ -53,9 +53,9 @@ impl Id {
         }
     }
 
-    pub fn to_string(&self) -> &String {
-        let st = &self._id;
-        st
+    /// Get the id as a std::String
+    pub fn to_string(&self) -> String {
+        self._id.clone()
     }
 }
 

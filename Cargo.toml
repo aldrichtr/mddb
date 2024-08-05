@@ -30,6 +30,7 @@ nanoid = "0.4.0"
 uuid = { version = "1.10.0", features = ["v4", "fast-rng"] }
 regex = "1.10.5"
 thiserror = "1.0.63"
+relative-path = "1.9.3"
 
 [dev-dependencies]
 nextest = "0.0.0"
