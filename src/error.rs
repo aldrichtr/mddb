@@ -12,4 +12,8 @@ pub enum DataStoreError {
 
     #[error("File '{fname:?}' already exists")]
     FileExistsError { fname : String },
+
+    //TODO: This could be more descriptive
+    #[error("Could not build AST")]
+    AstError
 }

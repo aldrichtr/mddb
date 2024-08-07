@@ -33,6 +33,7 @@ uuid = { version = "1.10.0", features = ["v4", "fast-rng"] }
 regex = "1.10.5"
 thiserror = "1.0.63"
 pathdiff = "0.2.1"
+log = { version = "0.4.22", features = ["kv", "max_level_trace", "release_max_level_info", "std"] }
 
 [dev-dependencies]
 nextest = "0.0.0"

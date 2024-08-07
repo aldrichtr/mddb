@@ -417,6 +417,7 @@ name = "mddb"
 version = "0.1.0"
 dependencies = [
  "glob",
+ "log",
  "markdown-it",
  "markdown-it-front-matter",
  "markdown-it-tasklist",
