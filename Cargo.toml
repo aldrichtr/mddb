@@ -1,11 +1,13 @@
 [package]
-authors = ["Timothy Aldrich <timothy.r.aldrich@gmail.com"]
-description = "Use a collection of markdown files as a database"
-homepage = "https://github.com/aldrichtr/mddb"
-repository = "https://github.com/aldrichtr/mddb"
 name = "mddb"
 version = "0.1.0"
+authors = ["Timothy Aldrich <timothy.r.aldrich@gmail.com"]
+description = "Use a collection of markdown files as a database"
+license-file = "LICENSE"
+homepage = "https://github.com/aldrichtr/mddb"
+repository = "https://github.com/aldrichtr/mddb"
 edition = "2021"
+
 
 [dependencies]
 # file system
@@ -23,14 +25,16 @@ markdown-it-front-matter = "0.3.0"
 serde_yml = "0.0.11"
 
 # Abstract Syntax Tree
-tree-ds = "0.1"
+tree-ds = { version = "0.1"}
 
 # Node Ids
 nanoid = "0.4.0"
 uuid = { version = "1.10.0", features = ["v4", "fast-rng"] }
 regex = "1.10.5"
 thiserror = "1.0.63"
-relative-path = "1.9.3"
+pathdiff = "0.2.1"
 
 [dev-dependencies]
 nextest = "0.0.0"
+stdext = "0.3.3"
+test-group = "1.0.1"

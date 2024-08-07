@@ -23,9 +23,9 @@ pub struct Id {
 impl Default for Id {
     fn default() -> Self {
         Self {
-            kind: IdType::Nanoid,
-            length: 23,
-            _id: nanoid!(23, &ALPHABET)
+            kind : IdType::Nanoid,
+            length : 23,
+            _id : nanoid!(23, &ALPHABET),
         }
     }
 }

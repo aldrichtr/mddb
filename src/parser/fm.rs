@@ -1,9 +1,8 @@
-
 use serde_derive::Deserialize;
 
 // region: FileFrontMatter
 #[allow(unused)]
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, PartialEq, Eq, Clone)]
 pub struct FileFrontMatter {
     pub id : String,
     pub title : String,

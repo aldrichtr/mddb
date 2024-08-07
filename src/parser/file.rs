@@ -1,8 +1,6 @@
+use crate::parser::{CheckboxData, FileFrontMatter, HeadingData};
 
-use crate::parser::*;
-
-
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct FileData {
     pub front_matter : FileFrontMatter,
     pub headings : Vec<HeadingData>,

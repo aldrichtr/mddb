@@ -1,5 +1,4 @@
-
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct HeadingData {
     title : String,
     level : u8,

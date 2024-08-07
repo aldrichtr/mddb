@@ -4,7 +4,8 @@
 edition = "2021"
 version = "Two"
 required_version = "1.7.1"
-unstable_features = false
+# opt-in to latest unstable features
+unstable_features = true
 
 #endregion Version
 

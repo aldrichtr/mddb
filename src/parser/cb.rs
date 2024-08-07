@@ -1,5 +1,4 @@
-
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct CheckboxData {
     pub title : String,
     pub checked : bool,
@@ -8,8 +7,8 @@ pub struct CheckboxData {
 impl Default for CheckboxData {
     fn default() -> Self {
         Self {
-            title: String::from(""),
-            checked: false
+            title : String::from(""),
+            checked : false,
         }
     }
 }
@@ -26,16 +25,14 @@ impl CheckboxData {
         self.checked = true
     }
 
-
     pub fn uncheck(&mut self) {
         self.checked = false
     }
 
-    pub fn set_title(&mut self, title: &str) {
+    pub fn set_title(&mut self, title : &str) {
         self.title = title.to_string()
     }
 }
-
 
 #[cfg(test)]
 mod test {
