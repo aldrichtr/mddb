@@ -37,12 +37,13 @@ impl CheckboxData {
 #[cfg(test)]
 mod test {
     use super::CheckboxData;
+    use k9::assert_equal;
 
-    #[test]
+    #[test_log::test]
     pub fn new_checkbox_with_title() {
         let title = "A test checkbox with default value";
         let cb = CheckboxData::new(title, None);
-        assert_eq!(title, cb.title);
-        assert_eq!(false, cb.checked);
+        assert_equal!(title, cb.title);
+        assert_equal!(false, cb.checked);
     }
 }

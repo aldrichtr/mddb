@@ -3,10 +3,13 @@ name = "mddb"
 version = "0.1.0"
 authors = ["Timothy Aldrich <timothy.r.aldrich@gmail.com"]
 description = "Use a collection of markdown files as a database"
-license-file = "LICENSE"
+license = "MIT"
 homepage = "https://github.com/aldrichtr/mddb"
 repository = "https://github.com/aldrichtr/mddb"
 edition = "2021"
+categories = ["database", "text-processing", "filesystem"]
+keywords = ["markdown", "database"]
+readme = "README.md"
 
 
 [dependencies]
@@ -34,8 +37,11 @@ regex = "1.10.5"
 thiserror = "1.0.63"
 pathdiff = "0.2.1"
 log = { version = "0.4.22", features = ["kv", "max_level_trace", "release_max_level_info", "std"] }
+normalize-path = "0.2.1"
 
 [dev-dependencies]
+k9 = "0.12.0"
 nextest = "0.0.0"
 stdext = "0.3.3"
 test-group = "1.0.1"
+test-log = "0.2.16"

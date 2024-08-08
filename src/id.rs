@@ -64,28 +64,28 @@ impl Id {
 mod tests {
     use super::Id;
     use super::IdType::{Nanoid, Uuid};
-
-    #[test]
+    use k9::assert_equal;
+    #[test_log::test]
     fn test_new_id_with_default_id() {
         let id = Id::new(None, None);
-        assert_eq!(23, id.length);
-        assert_eq!(Nanoid, id.kind);
-        assert_eq!(23, id.to_string().len());
+        assert_equal!(23, id.length);
+        assert_equal!(Nanoid, id.kind);
+        assert_equal!(23, id.to_string().len());
     }
 
-    #[test]
+    #[test_log::test]
     fn test_new_id_with_uuid_id() {
         let id = Id::new(Some(Uuid), None);
-        assert_eq!(36, id.length);
-        assert_eq!(Uuid, id.kind);
-        assert_eq!(36, id.to_string().len());
+        assert_equal!(36, id.length);
+        assert_equal!(Uuid, id.kind);
+        assert_equal!(36, id.to_string().len());
     }
 
-    #[test]
+    #[test_log::test]
     fn test_new_id_with_nanoid_id() {
         let id = Id::new(Some(Nanoid), Some(40));
-        assert_eq!(40, id.length);
-        assert_eq!(Nanoid, id.kind);
-        assert_eq!(40, id.to_string().len());
+        assert_equal!(40, id.length);
+        assert_equal!(Nanoid, id.kind);
+        assert_equal!(40, id.to_string().len());
     }
 }
