@@ -17,11 +17,95 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build_and_test:
-    name: Rust project - latest
+    # --------------------------------------------------------------------------------
+    # #region Generate output from metadata
+
+  crate_metadata:
+    name: Extract crate metadata
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: rustup update && rustup default
-      - run: cargo build --verbose
+    - uses: actions/checkout@v4
+    - name: Extract crate information
+      id: crate_metadata
+      shell: pwsh
+      run: |
+        $package = cargo metadata --no-deps --format-version 1
+            | ConvertFrom-Json
+            | Select-Object -ExpandProperty packages
+            | Select-Object -First 1
+        if ($null -ne $package) {
+            "$($PSStyle.Foreground.Blue)Package info$($PSStyle.Reset)"
+            $package
+                | Select-Object -ExcludeProperty dependencies
+                | Format-List
+            "$($PSStyle.Foreground.Cyan)Generating output from package info...$($PSStyle.Reset)"
+            $env:GITHUB_OUTPUT = (@(
+                "name=$package.name",
+                "version=$package.version",
+                "maintainer=$package.authors[0]",
+                "homepage=$package.homepage"
+            ) -join "`n")
+        } else {
+            "$($PSStyle.Foreground.Magenta)Could not generate output from package info$($PSStyle.Reset)"
+        }
+    outputs:
+      name: ${{ steps.crate_metadata.outputs.name }}
+      version: ${{ steps.crate_metadata.outputs.version }}
+      maintainer: ${{ steps.crate_metadata.outputs.maintainer }}
+      homepage: ${{ steps.crate_metadata.outputs.homepage }}
+
+    # #endregion Generate output from metadata
+    # --------------------------------------------------------------------------------
+
+  check_format:
+    name: Check the format
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout the project
+        uses: actions/checkout@v4
+      - name: Install the rust toolchain
+        #! Note that we are using the nightly version
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - run: cargo fmt -- --check
+
+  build:
+    name: Build the project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the project
+        uses: actions/checkout@v4
+      - name: Cache the project
+        uses: Swatinem/rust-cache@v2
+      - name: update rust
+        run: rustup update && rustup default
+      - name: Build the project
+        run: cargo build --verbose
+
+  test:
+    name: Test the project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the project
+        uses: actions/checkout@v4
+      - name: Cache the project
+        uses: Swatinem/rust-cache@v2
+      - name: update rust
+        run: rustup update && rustup default
       - run: cargo test --verbose
+
+  clippy_check:
+    name: Check the project using clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: nightly
+            components: clippy
+            override: true
+      - uses: actions-rs/clippy-check@v1
+        #! this will add the clippy output as comments inline with the code
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features
