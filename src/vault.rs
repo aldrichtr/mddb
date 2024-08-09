@@ -54,7 +54,6 @@ impl Vault {
     ) -> Result<Self, DataStoreError> {
         // either use the arguments or the defaults
         let def = &Vault::default();
-        let base = base.normalize();
         let _pattern = pattern.unwrap_or(def.pattern.as_str());
         let mut _name = name.unwrap_or(def.name.as_str());
         let _options = options.unwrap_or(def.options);
@@ -115,16 +114,27 @@ impl Vault {
         }
     }
 
+
+    fn convert_to_glob(&self) -> String {
+        debug!("Converting to glob pattern");
+        let path = self.base.display().to_string();
+        trace!("base converted to {path:?}");
+        let mut path = shellexpand::full(path.as_str()).unwrap().to_string();
+        trace!("base expanded to {path:?}");
+        path.push_str(std::path::MAIN_SEPARATOR_STR);
+        trace!("Added the separator {path:?}");
+        path.push_str(self.pattern.as_str());
+        debug!("final glob pattern is {path:?}");
+        path
+    }
+
     /// Return the files that match the glob pattern
     pub fn get_files(&self) -> Result<Paths, DataStoreError> {
         debug!("Getting files in the vault");
-        let path = self.base.to_str().unwrap();
 
-        let mut path = path.to_string();
-        path.push_str(std::path::MAIN_SEPARATOR_STR);
-        path.push_str(self.pattern.as_str());
-        debug!("File pattern is {:?}", path);
-        match glob_with(path.as_str(), self.options) {
+        let pattern = self.convert_to_glob();
+        debug!("File pattern is {:?}", pattern);
+        match glob_with(pattern.as_str(), self.options) {
             Ok(mut p) => {
                 let count = p.by_ref().count();
                 debug!("Pattern returned {:?} files", count);
@@ -361,7 +371,8 @@ mod tests {
                 std::fs::create_dir_all(workspace.clone())
                     .expect("Could not create path {workspace}");
             }
-            workspace.canonicalize().unwrap()
+            debug!("Data dir is {:?}", workspace.display());
+            workspace
         }
     }
 
