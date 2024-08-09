@@ -93,7 +93,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
       - name: update rust
         run: rustup update && rustup default
-      - run: cargo test --verbose
+      - run: cargo nextest run --profile ci
 
   clippy_check:
     name: Check the project using clippy
