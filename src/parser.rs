@@ -20,7 +20,7 @@ use log::trace;
 use pathdiff::diff_paths;
 
 //- local
-pub use crate::parser::{cb::CheckboxData, file::FileData, fm::FileFrontMatter, h::HeadingData};
+pub use crate::parser::{cb::CheckboxData, file::FileData, h::HeadingData};
 
 // endregion imports
 

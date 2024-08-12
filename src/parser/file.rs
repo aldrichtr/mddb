@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use log::trace;
 
-use crate::parser::{CheckboxData, FileFrontMatter, HeadingData};
+use crate::parser::{CheckboxData, HeadingData};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 #[derive(Default)]

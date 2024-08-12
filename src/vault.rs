@@ -10,7 +10,6 @@ use std::{
 use glob::{glob_with, MatchOptions, Paths, PatternError};
 use log::{debug, error, info, trace, warn};
 use pathdiff::diff_paths;
-use serde_yml::Value;
 use tree_ds::prelude::{Node, NodeRemovalStrategy::RemoveNodeAndChildren, Tree};
 //- local
 use crate::{
