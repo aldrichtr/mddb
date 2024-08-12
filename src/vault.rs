@@ -1,9 +1,7 @@
 // region: imports
 //- stdlib
 use std::{
-    default::Default,
-    fs,
-    path::{Path, PathBuf},
+    borrow::Borrow, default::Default, fs, path::{Path, PathBuf}
 };
 
 //- crates
@@ -87,7 +85,7 @@ impl Vault {
         // now create a vault object from the given args
         let mut s = Self {
             name: _name.to_string(),
-            base: base.canonicalize().unwrap().clone(),
+            base: base.clone(),
             pattern: _pattern.to_string(),
             options: _options,
             tree: Tree::new(Some(_name)),
@@ -247,44 +245,44 @@ impl Vault {
         // exist
         if let Ok(root) = self.init_tree() {
             debug!("Gathering files using {:?}", self.pattern);
-            for file in self.get_files().expect("Could not get files in vault") {
-                debug!("Reading {:?}", file);
-                match file {
-                    Ok(file) => {
-                        if file.file_name().unwrap().to_os_string() == PathBuf::from("root.md") {
-                            debug!("file {counter:?} is the root file, skipping parse");
-                            counter += 1;
-                            continue;
-                        } else {
-                            debug!("Parsing {file:?}");
-                            if let Ok(fd) = parser.parse(&file) {
-                                let mut id = fd.front_matter.id.clone();
-                                if id.is_empty() {
-                                    debug!("No id found in file frontmatter, generating new");
-                                    id = Id::default().to_string();
-                                }
-                                debug!("Creating new AST node for {file:?}");
-                                let n = Node::new(id, Some(fd));
-                                if let Ok(child) = self.tree.add_node(n, Some(&root)) {
-                                    debug!("Added child with id {child:?}");
-                                    counter += 1
-                                } else {
-                                    warn!("Could not add child");
-                                    ()
-                                }
+                for entry in self.get_files().expect("could not get files matching pattern") {
+                    match entry {
+                        Ok(file) => {
+                            debug!("Reading {:?}", file);
+                            if file.file_name().unwrap().to_os_string() == PathBuf::from("root.md") {
+                                debug!("file {counter:?} is the root file, skipping parse");
+                                counter += 1;
+                                continue;
                             } else {
-                                error!("There was an error during parsing file {file:?}");
-                                ()
-                            };
+                                debug!("Parsing {file:?}");
+                                if let Ok(fd) = parser.parse(&file) {
+                                    let mut id = fd.front_matter.id.clone();
+                                    if id.is_empty() {
+                                        debug!("No id found in file frontmatter, generating new");
+                                        id = Id::default().to_string();
+                                    }
+                                    debug!("Creating new AST node for {file:?}");
+                                    let n = Node::new(id, Some(fd));
+                                    if let Ok(child) = self.tree.add_node(n, Some(&root)) {
+                                        debug!("Added child with id {child:?}");
+                                        counter += 1
+                                    } else {
+                                        warn!("Could not add child");
+                                        ()
+                                    }
+                                } else {
+                                    error!("There was an error during parsing file {file:?}");
+                                    ()
+                                };
+                            }
+                        }
+                        Err(e) => {
+                            error!("Error getting files {:?}", e);
                         }
                     }
-                    Err(e) => {
-                        error!("Error getting files {:?}", e);
-                    }
                 }
-            }
-            debug!("Completed parsing {counter:?} files");
-            Ok(counter)
+                debug!("Completed parsing {counter:?} files");
+                Ok(counter)
         } else {
             error!("Failed to initialize AST");
             Err(DataStoreError::AstError)
