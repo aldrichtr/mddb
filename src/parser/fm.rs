@@ -3,6 +3,7 @@ use serde_derive::Deserialize;
 // region: FileFrontMatter
 #[allow(unused)]
 #[derive(Debug, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Default)]
 pub struct FileFrontMatter {
     pub id : String,
     pub title : String,
@@ -19,20 +20,5 @@ pub struct FileFrontMatter {
     pub owner : String,
 }
 
-impl Default for FileFrontMatter {
-    fn default() -> Self {
-        Self {
-            id : String::from(""),
-            title : String::from(""),
-            desc : String::from(""),
-            tags : Vec::new(),
-            updated : String::from(""),
-            created : String::from(""),
-            status : String::from(""),
-            priority : String::from(""),
-            owner : String::from(""),
-        }
-    }
-}
 
 // endregion FileFrontMatter

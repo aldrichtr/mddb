@@ -21,7 +21,7 @@ impl HeadingData {
     pub fn new(title : &str, level : u8) -> Self {
         Self {
             title : title.to_string(),
-            level : level,
+            level,
         }
     }
 }

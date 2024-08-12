@@ -1,13 +1,16 @@
 // region: imports
 //- stdlib
 use std::{
-    default::Default, fs, path::{Path, PathBuf}
+    default::Default,
+    fs,
+    path::{Path, PathBuf},
 };
 
 //- crates
 use glob::{glob_with, MatchOptions, Paths, PatternError};
 use log::{debug, error, info, trace, warn};
 use pathdiff::diff_paths;
+use serde_yml::Value;
 use tree_ds::prelude::{Node, NodeRemovalStrategy::RemoveNodeAndChildren, Tree};
 //- local
 use crate::{
@@ -111,7 +114,6 @@ impl Vault {
         }
     }
 
-
     fn convert_to_glob(&self) -> String {
         debug!("Converting to glob pattern");
         let path = self.base.display().to_string();
@@ -143,12 +145,8 @@ impl Vault {
     }
 
     /// either get the id from root.md or create a new one
-    fn get_root_id(&self) -> Option<String> {
-        if let Some(n) = self.tree.get_root_node() {
-            Some(n.get_node_id())
-        } else {
-            None
-        }
+    pub fn get_root_id(&self) -> Option<String> {
+        self.tree.get_root_node().map(|n| n.get_node_id())
     }
 
     // Initialize the root element with either the root.md file, or a blank root
@@ -178,24 +176,25 @@ impl Vault {
             debug!("Found root file {root_file:?}");
             let parser = Parser::new();
             debug!("Parsing root file");
-            if let Ok(fd) = parser.parse(&root_file) {
+            if let Ok(fd) = parser.parse(&root_file, &self.base) {
                 debug!("Parsing successful");
-                let mut id = fd.front_matter.id.clone();
+                let id = fd.front_matter.get("id").unwrap();
+                let mut id = id.as_str().unwrap().to_string();
                 if id.is_empty() {
                     debug!("Root file did not contain an id field");
                     id = Id::default().to_string();
-                };
+                }
                 debug!("Found id {id:?} in front matter");
                 let n = Node::new(id, Some(fd));
                 // we parsed the root file, so create the root node
                 match self.tree.add_node(n, None) {
                     Ok(root) => {
                         debug!("Adding root node to AST");
-                        return Ok(root);
+                        Ok(root)
                     }
                     Err(_) => {
                         error!("Could not add root node to AST");
-                        return Err(DataStoreError::AstError);
+                        Err(DataStoreError::AstError)
                     }
                 }
             } else {
@@ -228,44 +227,43 @@ impl Vault {
         // exist
         if let Ok(root) = self.init_tree() {
             debug!("Gathering files using {:?}", self.pattern);
-                for entry in self.get_files().expect("Could not get files with pattern") {
-                    match entry {
-                        Ok(file) => {
-                            debug!("Reading {:?}", file);
-                            if file.file_name().unwrap().to_os_string() == PathBuf::from("root.md") {
-                                counter += 1;
-                                debug!("file {counter:?} is the root file, skipping parse");
-                                continue;
-                            } else {
-                                debug!("Parsing {file:?}");
-                                if let Ok(fd) = parser.parse(&file) {
-                                    let mut id = fd.front_matter.id.clone();
-                                    if id.is_empty() {
-                                        debug!("No id found in file frontmatter, generating new");
-                                        id = Id::default().to_string();
-                                    }
-                                    debug!("Creating new AST node for {file:?}");
-                                    let n = Node::new(id, Some(fd));
-                                    if let Ok(child) = self.tree.add_node(n, Some(&root)) {
-                                        debug!("Added child with id {child:?}");
-                                        counter += 1
-                                    } else {
-                                        warn!("Could not add child");
-                                        ()
-                                    }
+            for entry in self.get_files().expect("Could not get files with pattern") {
+                match entry {
+                    Ok(file) => {
+                        debug!("Reading {:?}", file);
+                        if file.file_name().unwrap().to_os_string() == *"root.md" {
+                            counter += 1;
+                            debug!("file {counter:?} is the root file, skipping parse");
+                            continue;
+                        } else {
+                            debug!("Parsing {file:?}");
+                            if let Ok(fd) = parser.parse(&file, &self.base) {
+                                let id = fd.front_matter.get("id").unwrap().as_str();
+                                let mut id = id.unwrap().to_string();
+                                if id.is_empty() {
+                                    debug!("No id found in file frontmatter, generating new");
+                                    id = Id::default().to_string();
+                                }
+                                debug!("Creating new AST node for {file:?}");
+                                let n = Node::new(id, Some(fd));
+                                if let Ok(child) = self.tree.add_node(n, Some(&root)) {
+                                    debug!("Added child with id {child:?}");
+                                    counter += 1
                                 } else {
-                                    error!("There was an error during parsing file {file:?}");
-                                    ()
-                                };
-                            }
-                        }
-                        Err(e) => {
-                            error!("Error getting files {:?}", e);
+                                    warn!("Could not add child");
+                                }
+                            } else {
+                                error!("There was an error during parsing file {file:?}");
+                            };
                         }
                     }
+                    Err(e) => {
+                        error!("Error getting files {:?}", e);
+                    }
                 }
-                debug!("Completed parsing {counter:?} files");
-                Ok(counter)
+            }
+            debug!("Completed parsing {counter:?} files");
+            Ok(counter)
         } else {
             error!("Failed to initialize AST");
             Err(DataStoreError::AstError)
@@ -288,10 +286,9 @@ impl Vault {
                 };
                 Ok(())
             }
-            Err(e) => return Err(e),
+            Err(e) => Err(e),
         }
     }
-
 
     /// Return the relative path of the file compared to the vault base
     /// directory

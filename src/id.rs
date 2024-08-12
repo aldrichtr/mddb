@@ -57,7 +57,7 @@ impl Id {
         Self {
             kind : id_type,
             length : id_length,
-            _id : _id,
+            _id,
         }
     }
 }

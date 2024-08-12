@@ -1,17 +1,10 @@
 #[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Default)]
 pub struct CheckboxData {
     pub title : String,
     pub checked : bool,
 }
 
-impl Default for CheckboxData {
-    fn default() -> Self {
-        Self {
-            title : String::from(""),
-            checked : false,
-        }
-    }
-}
 
 impl CheckboxData {
     pub fn new(title : &str, check : Option<bool>) -> Self {

@@ -1,28 +1,30 @@
+use std::path::PathBuf;
+
+use log::trace;
+
 use crate::parser::{CheckboxData, FileFrontMatter, HeadingData};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Default)]
 pub struct FileData {
-    pub front_matter : FileFrontMatter,
+    pub path : PathBuf,
+    pub fname : String,
+    pub domain : String,
+    pub hierarchy : Vec<String>,
+    pub memberof : String,
+    pub front_matter : serde_yml::Value,
     pub headings : Vec<HeadingData>,
     pub check_boxes : Vec<CheckboxData>,
 }
 
-impl Default for FileData {
-    fn default() -> Self {
-        Self {
-            front_matter : FileFrontMatter::default(),
-            headings : Vec::new(),
-            check_boxes : Vec::new(),
-        }
-    }
-}
 
 impl FileData {
     pub fn new() -> Self {
         FileData::default()
     }
 
-    pub fn add_front_matter(&mut self, fm : FileFrontMatter) {
+    pub fn add_front_matter(&mut self, fm : serde_yml::Value) {
+        trace!("Adding frontmatter {fm:#?}");
         self.front_matter = fm;
     }
 

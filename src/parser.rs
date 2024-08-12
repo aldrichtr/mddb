@@ -16,7 +16,8 @@ use markdown_it::{
 use markdown_it_front_matter::FrontMatter;
 use markdown_it_tasklist::TodoCheckbox;
 
-use serde_yml;
+use log::trace;
+use pathdiff::diff_paths;
 
 //- local
 pub use crate::parser::{cb::CheckboxData, file::FileData, fm::FileFrontMatter, h::HeadingData};
@@ -34,20 +35,30 @@ impl Parser {
         markdown_it::plugins::cmark::add(&mut parser);
         markdown_it_front_matter::add(&mut parser);
         markdown_it_tasklist::add(&mut parser);
-        Self { parser : parser }
+        Self { parser }
     }
 
     /// Parses the given file
-    pub fn parse(&self, path : &PathBuf) -> Result<FileData, Error> {
+    pub fn parse(&self, path : &PathBuf, base : &PathBuf) -> Result<FileData, Error> {
         // Read in the file content
         let content : String = read_to_string(path).expect("Could not read markdown file");
         // Convert the content to a Markdown AST
         let ast : Node = self.parser.parse(content.as_str());
         let mut file_data = FileData::new();
+
+        let folders = diff_paths(path, base).unwrap();
+        file_data.path = path.clone();
+        let fname = path.file_stem().unwrap().to_string_lossy().to_string();
+        let parts : Vec<String> = fname.split(".").map(str::to_string).collect();
+
+        file_data.domain = parts[0].clone();
+        file_data.hierarchy = parts;
+
+
         // Fill in the the data into a FileData
         ast.walk(|node, _depth| {
             if let Some(fm) = node.cast::<FrontMatter>() {
-                let data : FileFrontMatter = serde_yml::from_str(fm.content.as_str())
+                let data : serde_yml::Value = serde_yml::from_str(fm.content.as_str())
                     .expect("Could not transform data in markdown frontmatter");
                 file_data.add_front_matter(data);
             } else if let Some(hd) = node.cast::<ATXHeading>() {
@@ -63,6 +74,7 @@ impl Parser {
                 }
             }
         });
+        trace!("File Data\n{file_data:#?}");
         Ok(file_data)
     }
 }
