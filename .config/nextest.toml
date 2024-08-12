@@ -57,11 +57,11 @@ final-status-level = "flaky"
 # For large test suites and CI it is generally useful to use "immediate-final".
 #
 # Can be overridden through the `--failure-output` option.
-failure-output = "immediate"
+failure-output = "final"
 
 # "success-output" controls production of standard output and standard error on success. This should
 # generally be set to "never".
-success-output = "immediate"
+success-output = "never"
 
 # Cancel the test run on the first failure. For CI runs, consider setting this
 # to false.

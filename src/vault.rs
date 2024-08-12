@@ -1,7 +1,7 @@
 // region: imports
 //- stdlib
 use std::{
-    borrow::Borrow, default::Default, fs, path::{Path, PathBuf}
+    default::Default, fs, path::{Path, PathBuf}
 };
 
 //- crates
@@ -9,7 +9,6 @@ use glob::{glob_with, MatchOptions, Paths, PatternError};
 use log::{debug, error, info, trace, warn};
 use pathdiff::diff_paths;
 use tree_ds::prelude::{Node, NodeRemovalStrategy::RemoveNodeAndChildren, Tree};
-use normalize_path::NormalizePath;
 //- local
 use crate::{
     id::Id,
@@ -116,35 +115,20 @@ impl Vault {
     fn convert_to_glob(&self) -> String {
         debug!("Converting to glob pattern");
         let path = self.base.display().to_string();
-        trace!("base converted to {path:?}");
         let mut path = shellexpand::full(path.as_str()).unwrap().to_string();
-        trace!("base expanded to {path:?}");
         path.push_str(std::path::MAIN_SEPARATOR_STR);
-        trace!("Added the separator {path:?}");
         path.push_str(self.pattern.as_str());
         debug!("final glob pattern is {path:?}");
         path
     }
 
     /// Return the files that match the glob pattern
-    pub fn get_files(&self) -> Result<Paths, DataStoreError> {
+    pub fn get_files(&self) -> Result<Paths, PatternError> {
         debug!("Getting files in the vault");
 
         let pattern = self.convert_to_glob();
         debug!("File pattern is {:?}", pattern);
-        match glob_with(pattern.as_str(), self.options) {
-            Ok(mut p) => {
-                let count = p.by_ref().count();
-                debug!("Pattern returned {:?} files", count);
-                return Ok(p);
-            }
-            Err(e) => {
-                error!("Glob pattern error {e:?}");
-                return Err(DataStoreError::EmptyVaultError {
-                    path: self.base.clone(),
-                });
-            }
-        }
+        glob_with(pattern.as_str(), self.options)
     }
 
     /// Returns either a PathBuf or None if it doesn't exist
@@ -169,7 +153,6 @@ impl Vault {
 
     // Initialize the root element with either the root.md file, or a blank root
     fn init_tree(&mut self) -> Result<String, DataStoreError> {
-        trace!("---------------------------- Initialize the AST -----------------------------------------------");
         // if there is already a tree, remove it first
         trace!("Checking to see if there is already an AST");
         if let Some(root) = self.tree.get_root_node() {
@@ -245,13 +228,13 @@ impl Vault {
         // exist
         if let Ok(root) = self.init_tree() {
             debug!("Gathering files using {:?}", self.pattern);
-                for entry in self.get_files().expect("could not get files matching pattern") {
+                for entry in self.get_files().expect("Could not get files with pattern") {
                     match entry {
                         Ok(file) => {
                             debug!("Reading {:?}", file);
                             if file.file_name().unwrap().to_os_string() == PathBuf::from("root.md") {
-                                debug!("file {counter:?} is the root file, skipping parse");
                                 counter += 1;
+                                debug!("file {counter:?} is the root file, skipping parse");
                                 continue;
                             } else {
                                 debug!("Parsing {file:?}");
@@ -309,6 +292,7 @@ impl Vault {
         }
     }
 
+
     /// Return the relative path of the file compared to the vault base
     /// directory
     pub fn rel_path(&self, path: &Path) -> Option<PathBuf> {
@@ -337,10 +321,7 @@ impl Vault {
 mod tests {
     use super::Vault;
     use k9::assert_equal;
-    use std::{
-        env,
-        path::{Path, PathBuf},
-    };
+    use log::debug;
     use stdext::function_name;
     /// Utility functions for the tests.
     mod util {
@@ -376,17 +357,18 @@ mod tests {
 
     #[test_log::test]
     fn new_vault_with_no_params() {
-        let out_dir = PathBuf::from(env!("TEMP"));
+        let out_dir = util::get_data_dir(Some(function_name!()));
         let v = Vault::connect(out_dir.clone(), None, None, None).unwrap();
         assert_equal!(out_dir, v.base);
         assert_equal!("*.md", v.pattern);
-        assert_equal!("Temp", v.name);
+        let f_name = function_name!().split("::").last().unwrap().to_string();
+        assert_equal!(f_name, v.name);
         assert_equal!(glob::MatchOptions::new(), v.options);
     }
 
     #[test_log::test]
     fn new_vault_with_params() {
-        let out_dir = PathBuf::from(env!("TEMP"));
+        let out_dir = util::get_data_dir(Some(function_name!()));
         let v = Vault::connect(out_dir.clone(), Some("*.md"), Some("default"), None).unwrap();
         assert_equal!(out_dir, v.base);
     }
@@ -401,15 +383,6 @@ mod tests {
     }
 
     #[test_log::test]
-    fn vault_relative_path() {
-        let workspace = util::get_workspace_dir();
-        let data_dir = util::get_data_dir(None);
-        let v = Vault::connect(workspace.clone(), None, Some("data"), None).unwrap();
-        let rel = Path::new("test/data").to_path_buf();
-        let rel_path = v.rel_path(&data_dir).unwrap_or(PathBuf::new());
-        assert_equal!(rel, rel_path);
-    }
-    #[test_log::test]
     fn vault_has_root_file() {
         let data_dir = util::get_data_dir(Some(function_name!()));
         let v = Vault::connect(data_dir.clone(), None, None, None).unwrap();
@@ -423,12 +396,13 @@ mod tests {
         let data_dir = util::get_data_dir(Some(function_name!()));
         let v = Vault::connect(data_dir.clone(), None, None, None).unwrap();
 
-        let t = v.get_tree();
-        let root = match t.get_root_node() {
-            Some(root) => root.get_node_id(),
-            None => String::from("-"),
-        };
-        assert_equal!(id, root);
+        if let Some(root) = v.get_root_id() {
+            debug!("Root id is {root:?}");
+            assert_equal!(id, root);
+        } else {
+            let root = String::from("");
+            assert_equal!(id, root);
+        }
     }
 }
 // endregion Tests

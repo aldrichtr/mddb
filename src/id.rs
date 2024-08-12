@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use nanoid::nanoid;
 use uuid::Uuid;
 
@@ -30,6 +32,12 @@ impl Default for Id {
     }
 }
 
+impl Display for Id {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self._id)
+    }
+}
+
 impl Id {
     pub fn new(kind : Option<IdType>, len : Option<usize>) -> Self {
         // TODO: get these "defaults" from a config object
@@ -51,11 +59,6 @@ impl Id {
             length : id_length,
             _id : _id,
         }
-    }
-
-    /// Get the id as a std::String
-    pub fn to_string(&self) -> String {
-        self._id.clone()
     }
 }
 
