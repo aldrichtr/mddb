@@ -1,0 +1,7 @@
+[book]
+title = "Markdown Database (mddb)"
+authors = ["Timothy Aldrich <mailto:timothy.r.aldrich@gmail.com>"]
+description = "Using a collection of markdown files as a database"
+src = "src"
+language = "en"
+text-direction = "ltr"
