@@ -54,7 +54,6 @@ impl Parser {
         file_data.domain = parts[0].clone();
         file_data.hierarchy = parts;
 
-
         // Fill in the the data into a FileData
         ast.walk(|node, _depth| {
             if let Some(fm) = node.cast::<FrontMatter>() {

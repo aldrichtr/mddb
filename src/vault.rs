@@ -23,33 +23,33 @@ use crate::error::DataStoreError;
 
 #[derive(Debug)]
 pub struct Vault {
-    pub name: String,
-    pub base: PathBuf,
-    pub pattern: String,
-    pub options: MatchOptions,
-    tree: Tree<String, FileData>,
+    pub name : String,
+    pub base : PathBuf,
+    pub pattern : String,
+    pub options : MatchOptions,
+    tree : Tree<String, FileData>,
 }
 
 impl Default for Vault {
     fn default() -> Self {
         Self {
-            name: String::from(""),
-            base: PathBuf::new(),
-            pattern: String::from("*.md"),
-            options: MatchOptions::new(),
-            tree: Tree::new(None),
+            name : String::from(""),
+            base : PathBuf::new(),
+            pattern : String::from("*.md"),
+            options : MatchOptions::new(),
+            tree : Tree::new(None),
         }
     }
 }
 
 impl Vault {
-    /// Create connection to a directory of markdown files.  Calling this function causes the markdown files to be
-    /// parsed and added to the AST
+    /// Create connection to a directory of markdown files.  Calling this
+    /// function causes the markdown files to be parsed and added to the AST
     pub fn connect(
-        base: PathBuf,
-        pattern: Option<&str>,
-        name: Option<&str>,
-        options: Option<MatchOptions>,
+        base : PathBuf,
+        pattern : Option<&str>,
+        name : Option<&str>,
+        options : Option<MatchOptions>,
     ) -> Result<Self, DataStoreError> {
         // either use the arguments or the defaults
         let def = &Vault::default();
@@ -65,15 +65,15 @@ impl Vault {
             Ok(false) => {
                 error!("{base:?} does not exist");
                 return Err(DataStoreError::VaultReadError {
-                    path: base,
-                    msg: String::from("Path does not exist"),
+                    path : base,
+                    msg : String::from("Path does not exist"),
                 });
             }
             Err(e) => {
                 error!("{base:?} could not be accessed");
                 return Err(DataStoreError::VaultReadError {
-                    path: base,
-                    msg: e.to_string(),
+                    path : base,
+                    msg : e.to_string(),
                 });
             }
         }
@@ -85,11 +85,11 @@ impl Vault {
         }
         // now create a vault object from the given args
         let mut s = Self {
-            name: _name.to_string(),
-            base: base.clone(),
-            pattern: _pattern.to_string(),
-            options: _options,
-            tree: Tree::new(Some(_name)),
+            name : _name.to_string(),
+            base : base.clone(),
+            pattern : _pattern.to_string(),
+            options : _options,
+            tree : Tree::new(Some(_name)),
         };
         debug!("Created new vault {:#?}", s);
         // Call load to populate the internal tree
@@ -97,13 +97,14 @@ impl Vault {
         match s.load() {
             Ok(num_files) => {
                 debug!("- Loading completed");
-                // if there wasn't an error loading the files, and there was at least one file parsed, return the Vault
+                // if there wasn't an error loading the files, and there was at least one file
+                // parsed, return the Vault
                 if num_files > 0 {
                     debug!("- parsed {num_files:?} markdown files");
                     Ok(s)
                 } else {
                     error!("- No markdown files were found in vault");
-                    Err(DataStoreError::EmptyVaultError { path: base })
+                    Err(DataStoreError::EmptyVaultError { path : base })
                 }
             }
             Err(e) => {
@@ -205,7 +206,8 @@ impl Vault {
             let id = Id::default().to_string();
             let fd = FileData::default();
             let n = Node::new(id, Some(fd));
-            // There is no root file, that's ok, just create the root node with a default filedata
+            // There is no root file, that's ok, just create the root node with a default
+            // filedata
             if let Ok(root) = self.tree.add_node(n, None) {
                 debug!("Add generated root node to AST. No root file");
                 Ok(root)
@@ -220,7 +222,7 @@ impl Vault {
     fn load(&mut self) -> Result<i64, DataStoreError> {
         debug!("------------------------ Load ---------------------------------------");
         // keep track of how many files we have loaded
-        let mut counter: i64 = 0;
+        let mut counter : i64 = 0;
         let parser = Parser::new();
         // this will get the id from the file or create a new one if it doesn't
         // exist
@@ -270,7 +272,7 @@ impl Vault {
     }
 
     /// Add a file to the vault at the given relative path
-    pub fn add(&self, rpath: &str, content: Option<&str>) -> Result<(), std::io::Error> {
+    pub fn add(&self, rpath : &str, content : Option<&str>) -> Result<(), std::io::Error> {
         let full_path = self.base.join(rpath);
 
         match fs::File::create_new(full_path) {
@@ -291,19 +293,19 @@ impl Vault {
 
     /// Return the relative path of the file compared to the vault base
     /// directory
-    pub fn rel_path(&self, path: &Path) -> Option<PathBuf> {
+    pub fn rel_path(&self, path : &Path) -> Option<PathBuf> {
         println!("Checking relative path from base {:#?}", self.base);
         let base = self.base.clone();
         diff_paths(path, base)
     }
 
     /// update the contents of the given file
-    pub fn update(&self, rpath: &str, content: &str) -> Result<(), DataStoreError> {
+    pub fn update(&self, rpath : &str, content : &str) -> Result<(), DataStoreError> {
         todo!("Update the contents of {:?} with {:?}", rpath, content);
     }
 
     /// remove (delete) a file from the vault
-    pub fn remove(&self, rpath: &str) -> Result<(), DataStoreError> {
+    pub fn remove(&self, rpath : &str) -> Result<(), DataStoreError> {
         todo!("remove the given file from the vault {:?}", rpath);
     }
 
@@ -335,7 +337,7 @@ mod tests {
         /// given, we remove everything except the actual name, and append that
         /// to the data directory.  If the directory does not exist, it is
         /// created.
-        pub(super) fn get_data_dir(fn_name: Option<&str>) -> PathBuf {
+        pub(super) fn get_data_dir(fn_name : Option<&str>) -> PathBuf {
             let mut workspace = get_workspace_dir();
             workspace = workspace.join("test/data");
             if fn_name.is_some() {

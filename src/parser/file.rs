@@ -4,8 +4,7 @@ use log::trace;
 
 use crate::parser::{CheckboxData, HeadingData};
 
-#[derive(Debug, PartialEq, Eq, Clone)]
-#[derive(Default)]
+#[derive(Debug, PartialEq, Eq, Clone, Default)]
 pub struct FileData {
     pub path : PathBuf,
     pub fname : String,
@@ -16,7 +15,6 @@ pub struct FileData {
     pub headings : Vec<HeadingData>,
     pub check_boxes : Vec<CheckboxData>,
 }
-
 
 impl FileData {
     pub fn new() -> Self {

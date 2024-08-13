@@ -2,8 +2,7 @@ use serde_derive::Deserialize;
 
 // region: FileFrontMatter
 #[allow(unused)]
-#[derive(Debug, Deserialize, PartialEq, Eq, Clone)]
-#[derive(Default)]
+#[derive(Debug, Deserialize, PartialEq, Eq, Clone, Default)]
 pub struct FileFrontMatter {
     pub id : String,
     pub title : String,
@@ -19,6 +18,5 @@ pub struct FileFrontMatter {
     #[serde(default)]
     pub owner : String,
 }
-
 
 // endregion FileFrontMatter

@@ -7,15 +7,14 @@ pub struct HeadingData {
 }
 
 impl Display for HeadingData {
-   fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, f : &mut Formatter) -> Result {
         let mut h = String::new();
         for _i in 0..self.level {
             h.push('#');
         }
         write!(f, "{} {}", h, self.title)
-   }
+    }
 }
-
 
 impl HeadingData {
     pub fn new(title : &str, level : u8) -> Self {
