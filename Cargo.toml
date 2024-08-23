@@ -27,9 +27,6 @@ markdown-it-tasklist = "0.2.0"
 markdown-it-front-matter = "0.3.0"
 serde_yml = "0.0.11"
 
-# Abstract Syntax Tree
-tree-ds = { version = "0.1"}
-
 # Node Ids
 nanoid = "0.4.0"
 uuid = { version = "1.10.0", features = ["v4", "fast-rng"] }
@@ -40,6 +37,7 @@ log = { version = "0.4.22", features = ["kv", "max_level_trace", "release_max_le
 normalize-path = "0.2.1"
 shellexpand = "3.1.0"
 lalrpop-util = { version = "0.20.2", features = ["lexer"] }
+sqlparser = { version = "0.50.0", features = ["serde", "visitor"] }
 
 [dev-dependencies]
 k9 = "0.12.0"

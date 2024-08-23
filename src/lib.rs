@@ -20,10 +20,17 @@
 //! datapoints are the filename/path of the file, the created and modified dates, the title, the headings, and any
 //! data that is stored in the frontmatter.
 //! Take this markdown file for example:
+//! > filename : lang.rust.trait.md
 //! ```markdown
 //! ---
 //! id: 7csf5wyep1i96o3x35oalg5
-//! title:
+//! title: Rust traits
+//! desc: A collection of methods defined for an unknown type `Self`
+//! updated: 1689888714807
+//! created: 1595961348801
+//! ---
+//! ## Overview
+//! ...
 //! ```
 mod database;
 mod error;
