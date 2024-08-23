@@ -1,6 +1,4 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         // ----------------------------------------------------------------------------------------
@@ -24,8 +22,8 @@
         {
             "label": "Test",
             "type": "cargo",
-            "command": "test",
-            "args": [ "--target", "x86_64-pc-windows-gnu" ],
+            "command": "nextest",
+            "args": [ "run", "--no-fail-fast" ],
             "group": {
                 "kind": "test",
                 "isDefault": true

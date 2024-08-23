@@ -1,0 +1,80 @@
+grammar;
+
+pub Command: Vec<String> = {
+    <CreateTable> => Vec::new(),
+    <Insert> => Vec::new(),
+    <Select> => Vec::new(),
+};
+
+CreateTable: Vec<String> = {
+    "create" "table" <table_name:TableName> "(" <columns:Columns> ")" => {
+        let mut result = vec![format!("Table created: '{}'", table_name)];
+        result.extend(columns);
+        result
+    }
+};
+
+Insert: Vec<String> = {
+    "insert" "into" <table_name:TableName> "(" <column_names:ColumnNames> ")" "values" "(" <values:Values> ")" => {
+        let mut result = vec![format!("Insert into: '{}'", table_name)];
+        result.extend(column_names);
+        result.extend(values);
+        result
+    }
+};
+
+Select: Vec<String> = {
+    "select" <column_names:ColumnNames> "from" <table_name:TableName> ";" => {
+        let mut result = vec![format!("Select from: '{}'", table_name)];
+        result.extend(column_names);
+        result
+    }
+};
+
+TableName: String = {
+    <s:r#"[a-zA-Z_][a-zA-Z0-9_]*"#> => s.to_string()
+};
+
+Columns: Vec<String> = {
+    <Column> => vec![],
+    <cs:Columns> "," <c:Column> => {
+        let mut cols = cs;
+        cols.push(c);
+        cols
+    }
+};
+
+Column: String = {
+    <name:ColumnName> <data_type:ColumnType> => format!("{} {}", name, data_type)
+};
+
+ColumnName: String = {
+    <s:r#"[a-zA-Z_][a-zA-Z0-9_]*"#> => s.to_string()
+};
+
+ColumnType: String = {
+    "int" => "int".to_string(),
+    "string" => "string".to_string()
+};
+
+ColumnNames: Vec<String> = {
+    <name:ColumnName> => vec![name],
+    <names:ColumnNames> "," <name:ColumnName> => {
+        let mut nms = names;
+        nms.push(name);
+        nms
+    }
+};
+
+Values: Vec<String> = {
+    <value:Value> => vec![value],
+    <vs:Values> "," <value:Value> => {
+        let mut vals = vs;
+        vals.push(value);
+        vals
+    }
+};
+
+Value: String = {
+    <s:r#"[a-zA-Z_][a-zA-Z0-9_]*"#> => s.to_string()
+};
